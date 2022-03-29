@@ -4,6 +4,7 @@ from multiprocessing.connection import Pipe
 import tsp
 import client
 from server import create_server
+import os
 
 FILENAME = "tsp20.csv"
 CONFIG = "client_config.csv"
@@ -21,7 +22,9 @@ if __name__ == "__main__":
     except:
         pass
 
-    problem = pandas.read_csv(FILENAME, index_col=0)
+    problem_path = os.path.join("problems", FILENAME)
+    problem = pandas.read_csv(problem_path, index_col=0)
+    
     sol_pipe, server_pipe = Pipe()
 
     client_list = client.load(CONFIG, POP_FACTOR)

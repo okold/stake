@@ -2,6 +2,24 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 
+# generates a travelling salesman problem and saves it to a csv file
+def generate(N, filename=None):
+    coords = []
+    for i in range(1,N+1):
+        coords.append(str(i) + "," + str(np.random.randint(1,N+1)) + "," + str(np.random.randint(1,N+1)) + "," + str(np.uniform(1.0,2.0)))
+    
+    string = "city,x,y,terrain"
+    
+    for i in coords:
+        string += "\n" + i
+    
+    if filename is None:
+        filename = "tsp" + str(N) + ".csv"
+
+    f = open(filename, "w")
+    f.write(string)
+    f.close()
+
 # plots a given solution
 # referenced:
 # https://gist.github.com/payoung/6087046
