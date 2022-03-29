@@ -3,7 +3,7 @@ import pandas
 from multiprocessing.connection import Pipe
 import tsp
 import client
-from server import create_server
+from tspserver import create_server
 import os
 
 FILENAME = "tsp20.csv"
@@ -19,8 +19,16 @@ if __name__ == "__main__":
         CONFIG = sys.argv[2]
         WAIT_TIME = int(sys.argv[3])
         NUM_ROUNDS = int(sys.argv[4])
+        POP_MULTIPLIER = int(sys.argv[5])
     except:
         pass
+
+    print("CURRENT SETTINGS")
+    print("Filename:      ", FILENAME)
+    print("Client Config: ", CONFIG)
+    print("Wait Time:     ", WAIT_TIME, "seconds")
+    print("Num Rounds:    ", NUM_ROUNDS)
+    print("Pop Multiplier:", POP_MULTIPLIER)
 
     problem_path = os.path.join("problems", FILENAME)
     config_path = os.path.join("configs", CONFIG)
@@ -29,11 +37,12 @@ if __name__ == "__main__":
     client_list = client.load(config_path, POP_MULTIPLIER)
     
     sol_pipe, server_pipe = Pipe()
-
-
-
-    server = create_server(problem, server_pipe, WAIT_TIME, len(client_list), num_rounds=NUM_ROUNDS)
-
+    server = create_server( problem, 
+                            len(client_list), 
+                            num_rounds=NUM_ROUNDS, 
+                            wait_time = WAIT_TIME,
+                            pipe = server_pipe
+                            )
     server.start()
 
     for client in client_list:

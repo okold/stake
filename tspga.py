@@ -1,37 +1,51 @@
 ################################################################################
-# TRAVELLING SALESMAN WITH A GENETIC ALGORITHM + AGENT IMPLEMENTATION
-
-import pygad
-import numpy as np
-import random
-import tsp
-
-# PARAMETERS:
-# - lookup_table:           the lookup table to use when determining fitness
-# - stop_ga:                an Event object to signal an early stop
-# - population:             the initial population (default None)
-# - parent_selection_type:  PyGAD parent selection type, choices are:
+# TRAVELING SALESMAN PROBLEM - GENETIC ALGORITHM
+# Olga Koldachenko          okold525@mtroyal.ca
+# COMP 5690                 Senior Computer Science Project
+# Mount Royal University    Winter 2022
+#
+#   create_tspga(lookup_table, stop_ga)
+# Returns a PyGAD instance for the traveling salesman problem.
+#
+#   PARAMETERS:
+# lookup_table:             the lookup table to use when determining fitness
+#
+#   OPTIONAL PARAMETERS:
+# stop_ga:                  an Event object to signal an early stop
+# population:               the initial population (default None)
+# parent_selection_type:    PyGAD parent selection type, choices are:
 #                           - "rank" (rank selection) DEFAULT
 #                           - "sss" (steady-state selection)
 #                           - "rws" (roulette wheel selection)
 #                           - "sus" (stochastic universal selection)
 #                           - "random" (random selection)
 #                           - "tournament" (tournament selection)
-# - num_parents_mating:     size of parent pool (minimum 2, default 3)     
-# - parents_kept:           number of parents kept per generation (default 1)
-# - mutation_type:          PyGad mutation type, choices are:
+# num_parents_mating:       size of the parent pool (minimum 2, default 3)     
+# parents_kept:             number of parents kept per generation (default 1)
+# mutation_type:            PyGad mutation type, choices are:
 #                           - "inversion" DEFAULT
 #                           - "swap"
 #                           - "random"
 #                           - "scramble"
-# - mutation_probability:   PyGad mutation probability (default 0.75)               
-def create_tspga(lookup_table, stop_ga, population = None, 
+# mutation_probability:     PyGad mutation probability (default 0.75)      
+import numpy as np
+import pygad
+import random
+import tsp
+           
+def create_tspga(lookup_table, stop_ga = None, population = None, 
     parent_selection_type = "random", num_parents_mating = 10, parents_kept = 5,
     mutation_type = "scramble", mutation_probability = 0.75):
 
     N = np.shape(lookup_table)[0]
     POP_SIZE = 200
     NUM_GENS = 10*N
+
+    if num_parents_mating < 2:
+        num_parents_mating = 2
+
+    if parents_kept > num_parents_mating:
+        parents_kept = num_parents_mating
 
     # returns true if the given list contains duplicates
     # referenced from:
@@ -47,8 +61,8 @@ def create_tspga(lookup_table, stop_ga, population = None,
     # gives better results than crossover_type=None
     # ***requires a minimum of two parents!***
     # clones one parent, then picks a second one from the set and swaps one gene
-    # as this creates a duplicate gene, continues to swap duplicate genes until all
-    # duplicates have been resolved
+    # as this creates a duplicate gene, continues to swap duplicate genes until 
+    # all duplicates have been resolved
     def cascade_crossover(parents, offspring_size, ga_instance):
         offspring = []
         N = len(parents) - 1
@@ -82,7 +96,7 @@ def create_tspga(lookup_table, stop_ga, population = None,
             #print(s)
             #print("Score:\t", tsp.total(lookup_table, s))
 
-        if stop_ga.is_set():
+        if stop_ga != None and stop_ga.is_set():
             #g.save(filename="test_save")
             return "stop"
 

@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import math
+import pandas as pd
 
 # generates a travelling salesman problem and saves it to a csv file
 def generate(N, filename=None):
@@ -19,6 +20,10 @@ def generate(N, filename=None):
     f = open(filename, "w")
     f.write(string)
     f.close()
+
+# loads a TSP from a given file
+def load(filename):
+    return pd.read_csv(filename, index_col=0)
 
 # plots a given solution
 # referenced:
@@ -42,8 +47,8 @@ def plot_solution(tsp, solution):
     
     plt.show()
 
-# returns normalized lookup tables created from the given tsp
-# distance_table, time_table
+# returns four lookup tables created from the given problem
+# distance_table, time_table, distance_norm, time_norm
 def create_lookup_tables(tsp):
 
     # does this return correctly?
@@ -68,7 +73,7 @@ def create_lookup_tables(tsp):
 
     return lookup_table, lookup_table_time, distance_norm, time_norm
 
-# weighs the two tables together
+# weighs two tables together
 def create_weighted_table(distance_weight, time_weight, distance_table, time_table):
     dist_norm = distance_table*distance_weight
     time_norm = time_table*time_weight
@@ -87,14 +92,3 @@ def total(lookup_table, sol):
 # determines the fitness of a solution
 def fitness(lookup_table,solution):
     return 0 - total(lookup_table, solution)
-
-# distance
-def best_solution(lookup_table, solution_list):
-    best_solution = solution_list[0]
-
-    for solution in solution_list:
-            if total(lookup_table, solution) < total(lookup_table, best_solution):
-                best_solution = solution
-
-    return best_solution
-

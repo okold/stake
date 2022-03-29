@@ -71,6 +71,9 @@ def create_client(  name = "Client",
                 if cmd == "stop":
                     stop_ga.set()
                     complete.set()
+        
+        conn.close()
+        conn_inner.close()
 
     # Worker Function
     def tsp_worker():
@@ -103,6 +106,8 @@ def create_client(  name = "Client",
                 s, fit, s_i = instance.best_solution()
                 conn_worker.send(s)
                 count += 1
+
+        conn_worker.close()
 
     # Main Process        
     class TSPGA(Process):
