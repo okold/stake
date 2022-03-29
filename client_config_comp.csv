@@ -1,0 +1,4 @@
+name,distance,time,use_other_solution
+Distance – Competitive,1,0,FALSE
+Time – Competitive,0,1,FALSE
+Balanced – Competitive,0.5,0.5,FALSE

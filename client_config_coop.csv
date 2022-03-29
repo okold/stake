@@ -1,0 +1,4 @@
+name,distance,time,use_other_solution
+Distance – Cooperative,1,0,TRUE
+Time – Cooperative,0,1,TRUE
+Balanced – Cooperative,0.5,0.5,TRUE
