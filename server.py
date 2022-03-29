@@ -1,11 +1,12 @@
-from cgitb import lookup
-import time
-from unittest import result
-from agent import Agent
-import tsp
 from datetime import datetime
 
-def create_server(problem, sol_pipe, wait_time, num_clients, distance_weight=0.5, time_weight=0.5, num_rounds=3):
+import time
+import tsp
+from multiprocessing import Process
+from multiprocessing.connection import Listener
+
+
+def create_server(problem, sol_pipe, wait_time, num_clients, distance_weight=0.5, time_weight=0.5, num_rounds=3, address=("localhost", 6000)):
 
     start_time = datetime.now()
 
@@ -62,14 +63,14 @@ def create_server(problem, sol_pipe, wait_time, num_clients, distance_weight=0.5
         return tsp.best_solution(chair_weights, result_list)
 
 
-
-
     # SERVER FUNCTION
-    def tsp_server(self):
+    def tsp_server():
+
+        listener = Listener(address)
 
         # connects to all clients
         for i in range(0, num_clients):
-            conn = self.communicator.accept()
+            conn = listener.accept()
             name = conn.recv()
             stakeholder_list.append(Stakeholder(conn, name))
 
@@ -114,9 +115,4 @@ def create_server(problem, sol_pipe, wait_time, num_clients, distance_weight=0.5
 
         sol_pipe.send(best_solution)
 
-    server = Agent(
-        comm_function=tsp_server,
-        server = True
-    )
-
-    return server
+    return Process(target=tsp_server)
