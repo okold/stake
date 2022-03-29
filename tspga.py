@@ -4,13 +4,13 @@
 # COMP 5690                 Senior Computer Science Project
 # Mount Royal University    Winter 2022
 #
-#   create_tspga(lookup_table, stop_ga)
+#       create_tspga(lookup_table)
 # Returns a PyGAD instance for the traveling salesman problem.
 #
-#   PARAMETERS:
+#   PARAMETERS
 # lookup_table:             the lookup table to use when determining fitness
 #
-#   OPTIONAL PARAMETERS:
+#   OPTIONAL PARAMETERS
 # stop_ga:                  an Event object to signal an early stop
 # population:               the initial population (default None)
 # parent_selection_type:    PyGAD parent selection type, choices are:

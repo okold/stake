@@ -4,15 +4,15 @@
 # COMP 5690                 Senior Computer Science Project
 # Mount Royal University    Winter 2022
 #
-#   create_server(problem, num_clients)
+#       create_server(problem, num_clients)
 # Returns a Process which acts as a server for a stakeholder search approach
 # to the traveling salesman problem.
 #
-#   PARAMETERS:
+#   PARAMETERS
 # problem:          a pandas dataframe containing the problem data
 # num_clients:      the number of clients (stakeholders) to work on the problem
 #
-#   OPTIONAL PARAMETERS:
+#   OPTIONAL PARAMETERS
 # wait_time:        the number of seconds to wait between rounds (default 5)
 # num_rounds:       the number of rounds to run the algorithm (default 5)
 # distance_weight:  the weight to apply to fitness using distance (default 0.5)

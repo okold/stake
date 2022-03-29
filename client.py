@@ -1,45 +1,44 @@
 ################################################################################
-# CLIENT
-# Parameters
-# - name:                   printed by the server
-# - distance_weight:        a number between 0 and 1
-# - time_weight:            a number between 0 and 1
-# - 
-# - parent_selection_type:  PyGAD parent selection type, choices are:
-#                           - "rank" (rank selection) 
-#                           - "sss" (steady-state selection)
-#                           - "rws" (roulette wheel selection)
-#                           - "sus" (stochastic universal selection)
-#                           - "random" (random selection)
-#                           - "tournament" (tournament selection)
-# - num_parents_mating:     size of parent pool 
-# - parents_kept:           number of parents kept per generation
-# - mutation_type:          PyGad mutation type, choices are:
-#                           - "inversion" 
-#                           - "swap"
-#                           - "random"
-#                           - "scramble"
-# - mutation_probability:   PyGad mutation probability (default 0.75)   
-from multiprocessing import Process
+# TRAVELING SALESMAN PROBLEM - CLIENT (GENETIC ALGORITHM)
+# Olga Koldachenko          okold525@mtroyal.ca
+# COMP 5690                 Senior Computer Science Project
+# Mount Royal University    Winter 2022
+#
+#       create_client()
+# Returns a TSPGA object, which is a subclass of Process. Upon running the
+# process, it will attempt to connect to the server at the specified address,
+# and participate in a number of rounds as a stakeholder.
+#
+#   OPTIONAL PARAMETERS
+# name:               - name of the client as printed by the server, otherwise 
+#                       a generated one is used
+# distance_weight:    - weight of distance in the fitness function (default 0.5)
+# time_weight:        - weight of time in the fitness function (default 0.5)
+# use_other_solution: - whether to include the solutions shared by the chair in 
+#                       the next round of search (default True)
+# address:            - the address of the server (default ('localhost', 6000))
+#
+#       load()
+# Returns a list of TSPGA objects, as determined by the given config file.
+#
+#   OPTIONAL PARAMETERS
+# filename:           - name of the config file (default "default.csv")
+# pop_multiplier:     - how many times to duplicate each config (default 1)
 from multiprocessing.connection import Client, Pipe
+from multiprocessing import Process
 from threading import Event, Thread
 from tspga import create_tspga
-
 import numpy as np
 import pandas
 import tsp
 import os
  
 def create_client(  name = "Client",
-                    distance_weight = 1, 
-                    time_weight = 0, 
+                    distance_weight = 0.5, 
+                    time_weight = 0.5, 
                     use_other_solution = True,
-                    address = ('localhost', 6000), 
-                    parent_selection_type = "sss", 
-                    num_parents_mating = 10, 
-                    parents_kept = 5,
-                    mutation_type = "scramble", 
-                    mutation_probability = 0.75):
+                    address = ('localhost', 6000)
+                    ):
 
     complete = Event()
     stop_ga = Event()
@@ -94,17 +93,11 @@ def create_client(  name = "Client",
                     stop_ga.clear()
                                  
             if stop_ga.is_set() == False:
-                instance = create_tspga(problem, stop_ga, 
-                    population=population, 
-                    parent_selection_type=parent_selection_type,
-                    num_parents_mating=num_parents_mating,
-                    parents_kept=parents_kept,
-                    mutation_type=mutation_type,
-                    mutation_probability=mutation_probability)
+                instance = create_tspga(problem, stop_ga, population=population)
                 instance.run()
                 population = instance.population
-                s, fit, s_i = instance.best_solution()
-                conn_worker.send(s)
+                sol, _, _ = instance.best_solution()
+                conn_worker.send(sol)
                 count += 1
 
         conn_worker.close()
@@ -125,10 +118,11 @@ def create_client(  name = "Client",
 
     return TSPGA(tsp_comm, tsp_worker)
 
-def load(path = None, pop_multiplier = 1):
-    if path == None:
-        path = os.path.join("configs", "default.csv")
-    
+def load(filename = None, pop_multiplier = 1):
+    if filename is None:
+        filename = "default.csv"
+
+    path = os.path.join("configs", filename)
     config = pandas.read_csv(path)
     config=config.to_numpy()
 
