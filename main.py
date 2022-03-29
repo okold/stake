@@ -7,10 +7,10 @@ from server import create_server
 import os
 
 FILENAME = "tsp20.csv"
-CONFIG = "client_config.csv"
+CONFIG = "default.csv"
 WAIT_TIME = 5
 NUM_ROUNDS = 5
-POP_FACTOR = 2
+POP_MULTIPLIER = 2
 
 if __name__ == "__main__":
 
@@ -23,11 +23,14 @@ if __name__ == "__main__":
         pass
 
     problem_path = os.path.join("problems", FILENAME)
+    config_path = os.path.join("configs", CONFIG)
+    
     problem = pandas.read_csv(problem_path, index_col=0)
+    client_list = client.load(config_path, POP_MULTIPLIER)
     
     sol_pipe, server_pipe = Pipe()
 
-    client_list = client.load(CONFIG, POP_FACTOR)
+
 
     server = create_server(problem, server_pipe, WAIT_TIME, len(client_list), num_rounds=NUM_ROUNDS)
 

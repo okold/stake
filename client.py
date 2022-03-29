@@ -28,6 +28,7 @@ from tspga import create_tspga
 import numpy as np
 import pandas
 import tsp
+import os
  
 def create_client(  name = "Client",
                     distance_weight = 1, 
@@ -119,14 +120,17 @@ def create_client(  name = "Client",
 
     return TSPGA(tsp_comm, tsp_worker)
 
-def load(filename = "client_config.csv", pop_factor = 1):
-    config = pandas.read_csv(filename)
+def load(path = None, pop_multiplier = 1):
+    if path == None:
+        path = os.path.join("configs", "default.csv")
+    
+    config = pandas.read_csv(path)
     config=config.to_numpy()
 
     client_list = []
 
     for i in range(0,len(config)):      # for each config
-        for j in range(0, pop_factor):  # how many duplicates
+        for j in range(0, pop_multiplier):  # how many duplicates
             client_list.append(
                 create_client(
                     name=config[i][0]+" - "+str(j),
