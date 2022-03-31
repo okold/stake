@@ -53,9 +53,12 @@ def create_server(  problem,
                 self.last_result = None
 
             def try_recv(self):
-                if self.conn.poll():
-                    self.last_result = self.conn.recv()
-                    return True
+                try:
+                    if self.conn.poll():
+                        self.last_result = self.conn.recv()
+                        return True
+                except EOFError:
+                    pass
 
                 return False
             
@@ -159,11 +162,11 @@ def create_server(  problem,
 
         for i in range(0, num_rounds):
             print()
-            print(datetime.now(), "BEGINNING ROUND", i)
+            print(datetime.now(), "BEGINNING ROUND", i+1)
 
             # sends command/data to all clients
             if i == 0:
-                c.send_to_all(("init", distance_norm, time_norm))
+                c.send_to_all(("init", distance_norm, time_norm, distance_table, time_table, chair_weights))
             else:
                 c.send_to_all(("continue", top_solutions))
 
@@ -176,7 +179,7 @@ def create_server(  problem,
 
             # records and prints the top solutions
             print()
-            print(datetime.now(), "Top solutions for round", i)
+            print(datetime.now(), "Top solutions for round", i+1)
             top_solutions = c.find_top_solutions(chair_weights)
             c.print_top()
         

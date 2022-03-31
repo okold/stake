@@ -11,6 +11,9 @@
 # num_rounds:       the number of times data is shared among stakeholders
 # pop_multiplier:   the number of clients to generate for each configuration
 from multiprocessing.connection import Pipe
+from datetime import datetime as dt
+
+from numpy import save
 import tspserver
 import pandas
 import client
@@ -23,6 +26,7 @@ config = "default.csv"
 wait_time = 5
 num_rounds = 5
 pop_multiplier = 2
+log_dir = None
 
 if __name__ == "__main__":
 
@@ -44,9 +48,13 @@ if __name__ == "__main__":
     print()
 
     problem_path = os.path.join("problems", filename)
+
+    if log_dir is None:
+        log_dir = os.path.join("logs", dt.now().strftime("%m-%d-%Y-%H-%M-%S"))
+    os.mkdir(log_dir)
     
     problem = pandas.read_csv(problem_path, index_col=0)
-    client_list = client.load(config, pop_multiplier)
+    client_list = client.load(config, pop_multiplier, log_dir=log_dir)
     
     sol_pipe, server_pipe = Pipe()
     server = tspserver.create_server(   problem, 
@@ -66,4 +74,4 @@ if __name__ == "__main__":
         client.join()
 
     best_solution = sol_pipe.recv()
-    tsp.plot_solution(problem,best_solution)
+    tsp.plot_solution(problem,best_solution,save_path=os.path.join(log_dir, "final_solution.png"))

@@ -28,17 +28,29 @@
 #                           - "random"
 #                           - "scramble"
 # mutation_probability:     PyGad mutation probability (default 0.75)      
+import datetime as dt
 import numpy as np
 import pygad
 import random
 import tsp
+import log
            
-def create_tspga(lookup_table, stop_ga = None, population = None, 
-    parent_selection_type = "random", num_parents_mating = 10, parents_kept = 5,
-    mutation_type = "scramble", mutation_probability = 0.75):
+def create_tspga(   lookup_table,
+                    distance_table,
+                    time_table,
+                    stop_ga = None, 
+                    population = None, 
+                    parent_selection_type = "sss", 
+                    parents_kept = 5,
+                    mutation_type = "inversion", 
+                    mutation_probability = 0.75,
+                    log_path = None
+                    ):
 
+                    
     N = np.shape(lookup_table)[0]
-    POP_SIZE = 200
+    num_parents_mating = int(N/2) 
+    POP_SIZE = 10*N
     NUM_GENS = 10*N
 
     if num_parents_mating < 2:
@@ -55,7 +67,7 @@ def create_tspga(lookup_table, stop_ga = None, population = None,
 
     # determines the fitness of a solution
     def fitness(solution, solution_idx ):
-        return 0 - tsp.total(lookup_table, solution)
+        return tsp.fitness(lookup_table, solution)
 
     # CROSSOVER FUNCTION
     # gives better results than crossover_type=None
@@ -87,17 +99,13 @@ def create_tspga(lookup_table, stop_ga = None, population = None,
             offspring.append(child)
         return np.array(offspring)
 
-    # prints generation information
+    # logs generation information
     def on_generation(g):
-        s, fit, s_i = g.best_solution()
-
-        #if g.generations_completed % 10 == 0:
-            #print("GEN", g.generations_completed)
-            #print(s)
-            #print("Score:\t", tsp.total(lookup_table, s))
+        s, fit, _ = g.best_solution()
+        
+        log.write(log_path, "GEN {:02d} - Distance: {:.8} - Time: {:.8}\n{}".format(g.generations_completed, tsp.total(distance_table, s), tsp.total(time_table, s), s), timestamp=True)
 
         if stop_ga != None and stop_ga.is_set():
-            #g.save(filename="test_save")
             return "stop"
 
     ga_instance = pygad.GA(

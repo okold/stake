@@ -28,7 +28,7 @@ import math
 def generate(N, filename=None):
     coords = []
     for i in range(1,N+1):
-        coords.append(str(i) + "," + str(np.random.randint(1,N+1)) + "," + str(np.random.randint(1,N+1)) + "," + str(np.uniform(1.0,2.0)))
+        coords.append(str(i) + "," + str(np.random.randint(1,N+1)) + "," + str(np.random.randint(1,N+1)) + "," + str(np.uniform(0.5,2.0)))
     
     string = "city,x,y,terrain"
     
@@ -108,9 +108,7 @@ def load(filename):
     return pd.read_csv(filename, index_col=0)
 
 # plots a given solution
-# referenced:
-# https://gist.github.com/payoung/6087046
-def plot_solution(tsp, solution):
+def plot_solution(tsp, solution, save_path = None):
     x = []
     y = []
     for i in range(0,len(solution)):
@@ -123,10 +121,26 @@ def plot_solution(tsp, solution):
     #plt.plot(x, y, "co")
 
     for i in range(0,len(x)-1):
-        plt.arrow(x[i], y[i], 
-        (x[i+1] - x[i]), (y[i+1] - y[i]),
-        length_includes_head=True)
+        plt.xlabel("Position (x)")
+        plt.ylabel("Position (y)")
+        plt.plot(x[i], y[i], "bo")
+        if i == 0:
+            plt.plot(x[i], y[i], "bo", label="start")
+            
+        plt.arrow(  x[i], 
+                    y[i], 
+                    (x[i+1] - x[i]), 
+                    (y[i+1] - y[i]),
+                    length_includes_head=True,
+                    head_width=0.1,
+                    head_length=0.2
+                    )
     
+    plt
+
+    if save_path is not None:
+        plt.savefig(save_path)
+
     plt.show()
 
 # returns four lookup tables created from the given problem
@@ -173,4 +187,4 @@ def total(lookup_table, sol):
 
 # determines the fitness of a solution
 def fitness(lookup_table,solution):
-    return 0 - total(lookup_table, solution)
+    return 1 / total(lookup_table, solution)
