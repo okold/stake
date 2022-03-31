@@ -50,7 +50,7 @@ def create_tspga(   lookup_table,
                     
     N = np.shape(lookup_table)[0]
     num_parents_mating = int(N/2) 
-    POP_SIZE = 10*N
+    POP_SIZE = 200
     NUM_GENS = 10*N
 
     if num_parents_mating < 2:

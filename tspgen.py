@@ -1,4 +1,4 @@
 import tsp
 import sys
 
-tsp.generate(sys.argv[1])
+tsp.generate(int(sys.argv[1]))

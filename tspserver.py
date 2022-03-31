@@ -104,7 +104,7 @@ def create_server(  problem,
             if self.top == []:
                 self.find_top_solutions(lookup_table)
             
-            return self.top[0].last_result
+            return self.top[0].last_result, self.top[0].name
 
         # returns the top N unique solutions, default 3
         def find_top_solutions(self, lookup_table, N = 3):
@@ -120,10 +120,10 @@ def create_server(  problem,
                     if len(top) < N:
                         top.append(stakeholder)
                     else:
-                        if tsp.total(lookup_table, stakeholder.last_result) < tsp.total(lookup_table, top[0].last_result):
-                            top.pop(0)
+                        if tsp.total(lookup_table, stakeholder.last_result) < tsp.total(lookup_table, top[N-1].last_result):
+                            top.remove(top[N-1])
                             top.append(stakeholder)
-                    top.sort(key=lambda x: tsp.total(lookup_table, x.last_result))
+                top.sort(key=lambda x: tsp.total(lookup_table, x.last_result))
             self.top = top    
             return list(map(lambda x: x.last_result, top)) 
         
@@ -198,8 +198,8 @@ def create_server(  problem,
 
         # sends the best solution for drawing
         if pipe != None:
-            best_solution = c.get_best_solution(chair_weights)
-            pipe.send(best_solution)
+            best_solution, winner_name = c.get_best_solution(chair_weights)
+            pipe.send((best_solution, "Solution Proposed By: {}".format(winner_name)))
             pipe.close()
 
         c.close_all()

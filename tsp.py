@@ -28,7 +28,7 @@ import math
 def generate(N, filename=None):
     coords = []
     for i in range(1,N+1):
-        coords.append(str(i) + "," + str(np.random.randint(1,N+1)) + "," + str(np.random.randint(1,N+1)) + "," + str(np.uniform(0.5,2.0)))
+        coords.append(str(i) + "," + str(np.random.randint(1,N+1)) + "," + str(np.random.randint(1,N+1)) + "," + str(np.random.uniform(0.5,2.0)))
     
     string = "city,x,y,terrain"
     
@@ -108,7 +108,7 @@ def load(filename):
     return pd.read_csv(filename, index_col=0)
 
 # plots a given solution
-def plot_solution(tsp, solution, save_path = None):
+def plot_solution(tsp, solution, save_path = None, name = None):
     x = []
     y = []
     for i in range(0,len(solution)):
@@ -118,25 +118,27 @@ def plot_solution(tsp, solution, save_path = None):
     x.append(tsp.loc[solution[0]][0])
     y.append(tsp.loc[solution[0]][1])
 
-    #plt.plot(x, y, "co")
-
     for i in range(0,len(x)-1):
         plt.xlabel("Position (x)")
-        plt.ylabel("Position (y)")
-        plt.plot(x[i], y[i], "bo")
-        if i == 0:
-            plt.plot(x[i], y[i], "bo", label="start")
-            
+
+        terrain = tsp.loc[solution[i]][2]
+
+        if terrain < 1:
+            plt.plot(x[i], y[i], marker="o", color="green")
+        else:
+            if terrain > 1.5:
+                plt.plot(x[i], y[i], marker="o", color="red")
+            else:
+                plt.plot(x[i], y[i], marker="o", color="blue")
+        if name is not None:
+            plt.suptitle(name)
+
         plt.arrow(  x[i], 
                     y[i], 
                     (x[i+1] - x[i]), 
                     (y[i+1] - y[i]),
-                    length_includes_head=True,
-                    head_width=0.1,
-                    head_length=0.2
+                    length_includes_head=True
                     )
-    
-    plt
 
     if save_path is not None:
         plt.savefig(save_path)

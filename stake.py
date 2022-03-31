@@ -50,7 +50,7 @@ if __name__ == "__main__":
     problem_path = os.path.join("problems", filename)
 
     if log_dir is None:
-        log_dir = os.path.join("logs", dt.now().strftime("%m-%d-%Y-%H-%M-%S"))
+        log_dir = os.path.join("logs", dt.now().strftime("%Y-%m-%d-%H-%M-%S"))
     os.mkdir(log_dir)
     
     problem = pandas.read_csv(problem_path, index_col=0)
@@ -73,5 +73,5 @@ if __name__ == "__main__":
     for client in client_list:
         client.join()
 
-    best_solution = sol_pipe.recv()
-    tsp.plot_solution(problem,best_solution,save_path=os.path.join(log_dir, "final_solution.png"))
+    best_solution, winner_name = sol_pipe.recv()
+    tsp.plot_solution(problem,best_solution,save_path=os.path.join(log_dir, "final_solution.png"),name=winner_name)
