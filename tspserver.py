@@ -48,7 +48,7 @@ class Stakeholder():
         return False
 
     def __str__(self):
-        s = "{} {:>22} D: {:.2f} T: {:.2f} {}".format(datetime.now(), 
+        s = "{} {:>29} D: {:.2f} T: {:.2f} {}".format(datetime.now(), 
                                             self.name, 
                                             tsp.total(self.distance_table, self.last_result), 
                                             tsp.total(self.time_table, self.last_result), 
@@ -156,6 +156,7 @@ def server_func(problem,
                 distance_weight = 0.5, 
                 time_weight = 0.5, 
                 address = ("localhost", 6000),
+                num_top_solutions = 3,
                 log_dir = None):
 
     csv_path = os.path.join(log_dir, "Server.csv")
@@ -200,10 +201,12 @@ def server_func(problem,
         c.print_all()
 
         # records and prints the top solutions
-        print()
-        print(datetime.now(), "Top solutions for round", i+1)
-        top_solutions = c.find_top_solutions(chair_weights)
-        c.print_top()
+        top_solutions = c.find_top_solutions(chair_weights, N=num_top_solutions)
+        
+        if num_top_solutions != num_clients:
+            print()
+            print(datetime.now(), "Top solutions for round", i+1)
+            c.print_top()
         csv.write(c.csv_solutions(i+1, chair_weights))
     
     # sends stop command to all clients
@@ -223,6 +226,6 @@ def server_func(problem,
     if pipe != None:
         stakeholder = c.get_best_solution(chair_weights)
         pipe.send((stakeholder.last_result, "{} | D: {:.2f} | T: {:.2f} | F: {:.2f}".format(stakeholder.name, tsp.total(distance_table, stakeholder.last_result), tsp.total(time_table, stakeholder.last_result), tsp.fitness(chair_weights, stakeholder.last_result))))
-        #pipe.close()
+        pipe.close()
 
-    #c.close_all()
+    c.close_all()

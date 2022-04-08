@@ -41,9 +41,9 @@ def tsp_client( name = "Client",
                 distance_weight = 0.5, 
                 time_weight = 0.5, 
                 use_other_solution = True,
+                share_chair_weights = False,
                 address = ('localhost', 6000),
-                log_path = None,
-                share_result = "best for me"):
+                log_path = None):
 
     complete = Event()
     stop_ga = Event()
@@ -56,7 +56,7 @@ def tsp_client( name = "Client",
                 args=[complete, stop_ga, conn_worker],
                 kwargs={"use_other_solution": use_other_solution,
                         "log_path": log_path,
-                        "share_result": share_result})
+                        "share_chair_weights": share_chair_weights})
     t1.start()
     
     conn = None
@@ -71,7 +71,7 @@ def tsp_client( name = "Client",
     try:
         if log_path != None:
             f = open(log_path, 'w')
-            f.write("Name: {}\nDistance Weight: {}\nTime Weight: {}\nUse Other Solution: {}\nResult Strategy: {}\n\n".format(name, distance_weight, time_weight, use_other_solution, share_result))
+            f.write("Name: {}\nDistance Weight: {}\nTime Weight: {}\nUse Other Solution: {}\nResult Strategy: {}\n\n".format(name, distance_weight, time_weight, use_other_solution, share_chair_weights))
             f.close()
     except:
         print(dt.now(), name, "could not open log file", log_path)
@@ -116,7 +116,7 @@ def tsp_client( name = "Client",
 def tsp_worker(complete, stop_ga, conn_worker, 
                 use_other_solution = True, 
                 log_path = None, 
-                share_result = "best for me"):
+                share_chair_weights = False):
     population = distance_table = time_table = chair_weights = None
     problem = None
     count = 1
@@ -165,10 +165,14 @@ def tsp_worker(complete, stop_ga, conn_worker,
                                         log_path=log_path)
             instance.run()
             population = instance.population
-            sol, _, _ = instance.best_solution()
-
-            if share_result == "best for me":
+            
+            if share_chair_weights == False:
+                sol, _, _ = instance.best_solution()
                 log.write(log_path, "Sending best solution to server:\n{}".format(str(sol)), timestamp=True)
+                conn_worker.send(sol)
+            else:
+                sol = tsp.best(population, chair_weights)
+                log.write(log_path, "Sending best solution for chair to server:\n{}".format(str(sol)), timestamp=True)
                 conn_worker.send(sol)
 
             count += 1
@@ -183,13 +187,14 @@ def load(   filename = None,
 
     path = os.path.join("configs", filename)
     config = pandas.read_csv(path)
-    config=config.to_numpy()
 
     client_list = []
 
     for i in range(0,len(config)):      # for each config
         for j in range(0, pop_multiplier):  # how many duplicates
-            name = config[i][0]+ "-" + str(j)
+            name = config.at[i, "name"]
+            if pop_multiplier > 1:
+               name += "-" + str(j)
 
             log_path = None
             if log_dir is not None:
@@ -201,9 +206,10 @@ def load(   filename = None,
             client_list.append(
                 Process(target=tsp_client, kwargs={
                     "name": name,
-                    "distance_weight": config[i][1],
-                    "time_weight": config[i][2],
-                    "use_other_solution": config[i][3],
+                    "distance_weight": config.at[i, "distance"],
+                    "time_weight": config.at[i, "time"],
+                    "use_other_solution": config.at[i, "use_other_solution"],
+                    "share_chair_weights": config.at[i, "share_chair_weights"],
                     "log_path": log_path
                     },
                     daemon=True

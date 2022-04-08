@@ -117,10 +117,9 @@ def plot_solution(tsp, solution, save_path = None, name = None):
     
     x.append(tsp.loc[solution[0]][0])
     y.append(tsp.loc[solution[0]][1])
-
+    plt.ylabel("Position (y)")
+    plt.xlabel("Position (x)")
     for i in range(0,len(x)-1):
-        plt.xlabel("Position (x)")
-
         terrain = tsp.loc[solution[i]][2]
 
         if terrain < 1:
@@ -200,3 +199,10 @@ def pop_string(population):
         s = s + str(population[i]) 
 
     return s
+
+def best(population, lookup_table):
+    best = population[0]
+    for i in range(1,len(population)):
+        if fitness(lookup_table, population[i]) > fitness(lookup_table, best):
+            best = population[i]
+    return best
