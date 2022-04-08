@@ -6,7 +6,7 @@
 #
 #   ARGUMENTS
 # filename:         the name of the file in the problems subdirectory
-# config:           the name of the file in the configs subdirectory
+# client_config:           the name of the file in the configs subdirectory
 # wait_time:        the number of seconds to wait between rounds (default 5)
 # num_rounds:       the number of times data is shared among stakeholders
 # pop_multiplier:   the number of clients to generate for each configuration
@@ -23,17 +23,18 @@ import tsp
 import os
 
 filename = "tsp20.csv"
-config = "default.csv"
+client_config = "default.csv"
+server_config = "20.csv"
 wait_time = 5
 num_rounds = 5
-pop_multiplier = 2
+pop_multiplier = 1
 log_dir = None
 
 if __name__ == "__main__":
 
     try:
         filename = sys.argv[1]
-        config = sys.argv[2]
+        client_config = sys.argv[2]
         wait_time = int(sys.argv[3])
         num_rounds = int(sys.argv[4])
         pop_multiplier = int(sys.argv[5])
@@ -42,7 +43,7 @@ if __name__ == "__main__":
 
     print("CURRENT SETTINGS")
     print("filename:      ", filename)
-    print("Client config: ", config)
+    print("Client config: ", client_config)
     print("Wait Time:     ", wait_time, "seconds")
     print("Num Rounds:    ", num_rounds)
     print("Pop Multiplier:", pop_multiplier)
@@ -55,13 +56,13 @@ if __name__ == "__main__":
     os.mkdir(log_dir)
     
     problem = pandas.read_csv(problem_path, index_col=0)
-    client_list = client.load(config, pop_multiplier, log_dir=log_dir)
+    client_list = client.load(client_config, pop_multiplier, log_dir=log_dir)
     
     sol_pipe, server_pipe = Pipe()
     
     server = Process(target=tspserver.server_func, 
                     args=[problem, len(client_list)], 
-                    kwargs={"pipe": server_pipe, "wait_time": wait_time, "num_rounds": num_rounds},
+                    kwargs={"pipe": server_pipe, "wait_time": wait_time, "num_rounds": num_rounds, "log_dir": log_dir},
                     daemon=True)
     
     server.start()
@@ -75,5 +76,5 @@ if __name__ == "__main__":
         client.join()
 
     best_solution, winner_name = sol_pipe.recv()
-    tsp.plot_solution(problem,best_solution,save_path=os.path.join(log_dir, "final_solution.png"),name=winner_name)
+    tsp.plot_solution(problem,best_solution,save_path=os.path.join(log_dir, "Solution.png"),name=winner_name)
     sol_pipe.close()

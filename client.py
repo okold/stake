@@ -32,6 +32,7 @@ from tspga import create_tspga
 from datetime import datetime as dt
 import numpy as np
 import pandas
+import time
 import tsp
 import log
 import os
@@ -58,7 +59,12 @@ def tsp_client( name = "Client",
                         "share_result": share_result})
     t1.start()
     
-    conn = Client(address)
+    conn = None
+    while conn == None:
+        try:    
+            conn = Client(address)
+        except ConnectionRefusedError:
+            time.sleep(1)    
     conn.send(name)
 
     # creates an empty log file
