@@ -190,3 +190,13 @@ def total(lookup_table, sol):
 # determines the fitness of a solution
 def fitness(lookup_table,solution):
     return 1 / total(lookup_table, solution)
+
+# prints out a population
+def pop_string(population):
+    s = ""
+    for i in range(0,len(population)):
+        if i > 0:
+            s = s + "\n"
+        s = s + str(population[i]) 
+
+    return s

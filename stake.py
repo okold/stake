@@ -12,6 +12,7 @@
 # pop_multiplier:   the number of clients to generate for each configuration
 from multiprocessing.connection import Pipe
 from datetime import datetime as dt
+from multiprocessing import Process
 
 from numpy import save
 import tspserver
@@ -57,14 +58,14 @@ if __name__ == "__main__":
     client_list = client.load(config, pop_multiplier, log_dir=log_dir)
     
     sol_pipe, server_pipe = Pipe()
-    server = tspserver.create_server(   problem, 
-                                        len(client_list), 
-                                        num_rounds=num_rounds, 
-                                        wait_time = wait_time,
-                                        pipe = server_pipe
-                                        )
+    
+    server = Process(target=tspserver.server_func, 
+                    args=[problem, len(client_list)], 
+                    kwargs={"pipe": server_pipe, "wait_time": wait_time, "num_rounds": num_rounds},
+                    daemon=True)
+    
     server.start()
-
+    
     for client in client_list:
         client.start()
 
@@ -75,3 +76,4 @@ if __name__ == "__main__":
 
     best_solution, winner_name = sol_pipe.recv()
     tsp.plot_solution(problem,best_solution,save_path=os.path.join(log_dir, "final_solution.png"),name=winner_name)
+    sol_pipe.close()
