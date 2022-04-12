@@ -1,0 +1,7 @@
+name,distance,time,use_other_solution,share_chair_weights
+Distance-Cooperative-Selfless,1,0,TRUE,TRUE
+Time-Cooperative-Selfless,0,1,TRUE,TRUE
+Balanced-Cooperative-Selfless,0.5,0.5,TRUE,TRUE
+Distance-Cooperative-Selfish,1,0,TRUE,FALSE
+Time-Cooperative-Selfish,0,1,TRUE,FALSE
+Balanced-Cooperative-Selfish,0.5,0.5,TRUE,FALSE

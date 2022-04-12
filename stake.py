@@ -5,16 +5,13 @@
 # Mount Royal University    Winter 2022
 #
 #   ARGUMENTS
-# filename:         the name of the file in the problems subdirectory
-# client_config:           the name of the file in the configs subdirectory
-# wait_time:        the number of seconds to wait between rounds (default 5)
-# num_rounds:       the number of times data is shared among stakeholders
-# pop_multiplier:   the number of clients to generate for each configuration
+# server_config:    The configuration for the server, as found in the 
+#                   server_configs folder, not including the file extension.
+#
+# num_repeats:      The number of times to run the search.
 from multiprocessing.connection import Pipe
 from datetime import datetime as dt
 from multiprocessing import Process
-
-from numpy import save
 import tspserver
 import pandas
 import client
@@ -29,7 +26,6 @@ wait_time = 60
 num_rounds = 60
 pop_multiplier = 1
 num_top_solutions = 3
-log_dir = None
 
 if __name__ == "__main__":
 
@@ -52,19 +48,10 @@ if __name__ == "__main__":
         pass
 
     problem_path = os.path.join("problems", filename)
-
-    if log_dir is None:
-        log_dir = os.path.join("logs", dt.now().strftime("%Y-%m-%d-%H-%M-%S"))
+    log_dir = os.path.join("logs", dt.now().strftime("%Y-%m-%d-%H-%M-%S"))
     os.mkdir(log_dir)
     
     problem = pandas.read_csv(problem_path, index_col=0)
-    client_list = client.load(client_config, pop_multiplier, log_dir=log_dir)
-
-    try:
-        if sys.argv[2] == "share-all":
-            num_top_solutions = len(client_list)
-    except:
-        pass
 
     print("CURRENT SETTINGS")
     print("Filename:      ", filename)
@@ -76,7 +63,9 @@ if __name__ == "__main__":
     print()
 
     sol_pipe, server_pipe = Pipe()
-    
+        
+    client_list = client.load(client_config, pop_multiplier, log_dir=log_dir)
+
     server = Process(target=tspserver.server_func, 
                     args=[problem, len(client_list)], 
                     kwargs={"pipe": server_pipe, 
@@ -99,3 +88,4 @@ if __name__ == "__main__":
     best_solution, winner_name = sol_pipe.recv()
     tsp.plot_solution(problem,best_solution,save_path=os.path.join(log_dir, "Solution.png"),name=winner_name)
     sol_pipe.close()
+    

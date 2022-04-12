@@ -185,7 +185,7 @@ def load(   filename = None,
     if filename is None:
         filename = "default.csv"
 
-    path = os.path.join("configs", filename)
+    path = os.path.join("client_configs", filename)
     config = pandas.read_csv(path)
 
     client_list = []

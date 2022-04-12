@@ -1,0 +1,7 @@
+name,distance,time,use_other_solution,share_chair_weights
+Distance-Competitive-Selfless,1,0,FALSE,TRUE
+Time-Competitive-Selfless,0,1,FALSE,TRUE
+Balanced-Competitive-Selfless,0.5,0.5,FALSE,TRUE
+Distance-Competitive-Selfish,1,0,FALSE,FALSE
+Time-Competitive-Selfish,0,1,FALSE,FALSE
+Balanced-Competitive-Selfish,0.5,0.5,FALSE,FALSE
