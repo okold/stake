@@ -1,3 +1,34 @@
+################################################################################
+# TRAVELING SALESMAN PROBLEM - LOGGING FUNCTIONS
+# Olga Koldachenko          okold525@mtroyal.ca
+# COMP 5690                 Senior Computer Science Project
+# Mount Royal University    Winter 2022
+#
+# This file holds several helper functions used in logging.
+#
+#       write(log_path, msg, timestamp = False, name = None)
+# This writes a message to a text file. 
+#
+# PARAMETERS
+# log_path:  - the path to the log file.
+# msg:       - the message to write.
+# timestamp: - if True, the message will be prefixed with the current time.
+# name:      - if not None, the message will be prefixed with the name.
+#
+#
+#       hr(log_path)
+# This writes a horizontal rule to a text file.
+#
+# PARAMETERS
+# log_path:  - the path to the log file.
+#
+#
+#       write_csv(log_path, list)
+# This writes a list of strings to a text file, separated by commas.
+#
+# PARAMETERS
+# log_path:  - the path to the log file.
+# list:      - the list of strings to write.
 from datetime import datetime as dt
 
 def write(log_path, msg, timestamp = False, name = None):

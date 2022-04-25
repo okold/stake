@@ -4,7 +4,9 @@
 # COMP 5690                 Senior Computer Science Project
 # Mount Royal University    Winter 2022
 #
-#       create_tspga(lookup_table)
+#       create_tspga(lookup_table, distance_table, time_table, stop_ga, 
+#                       population, parent_selection_type, parents_kept, 
+#                       mutation_type, mutation_probability, log_path)
 # Returns a PyGAD instance for the traveling salesman problem.
 #
 #   PARAMETERS
@@ -27,7 +29,8 @@
 #                           - "swap"
 #                           - "random"
 #                           - "scramble"
-# mutation_probability:     PyGad mutation probability (default 0.75)      
+# mutation_probability:     - PyGad mutation probability (default 0.75)
+# log_path:                 - path to the log file (default None)      
 import datetime as dt
 import numpy as np
 import pygad

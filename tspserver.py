@@ -4,21 +4,52 @@
 # COMP 5690                 Senior Computer Science Project
 # Mount Royal University    Winter 2022
 #
-#       create_server(problem, num_clients)
-# Returns a Process which acts as a server for a stakeholder search approach
-# to the traveling salesman problem.
+#       Stakeholder(conn, name, distance_table, time_table)
+# An object containing the information for a single stakeholder. THIS SHOULD NOT
+# BE USED ON ITS OWN, but rather created by the Committee class.
+#
+# METHODS
+# try_recv() - returns True if the stakeholder has sent a message, and updates
+#              the stakeholder's last_result.
+#
+#
+#       Committee(distance_table, time_table)
+# An object containing the set of all Stakeholder objects.
+#
+# METHODS
+# add(conn, name)                       - creates a new Stakeholder object.
+# send_to_all(data)                     - sends data to all Stakeholder objects.
+# recv_from_all()                       - receives solutions from all 
+#                                         Stakeholder objects.
+# close_all()                           - closes all connections to Stakeholders
+# find_top_solutions(lookup_table, N)   - returns the top N solutions
+# get_best_solution(lookup_table)       - returns the best solution
+# print_all()                           - prints all Stakeholder results.
+# print_top(best=False)                 - prints the last best solutions found, 
+#                                         or the best.
+# csv_header()                          - returns the header for the CSV file, 
+#                                         as a list of strings
+# csv_solutions(round, lookup_table)    - returns all fitness values as a list 
+#                                         of strings.
+#
+#
+#       server_func(problem, num_clients, wait_time=5, num_rounds = 5, 
+#                   pipe = None, distance_weight = 0.5, time_weight = 0.5, 
+#                   address = ("localhost", 6000), num_top_solutions = 3, 
+#                   log_dir = None)
+# The function to be passed to a Process object as the target.
 #
 #   PARAMETERS
-# problem:          a pandas dataframe containing the problem data
-# num_clients:      the number of clients (stakeholders) to work on the problem
-#
-#   OPTIONAL PARAMETERS
-# wait_time:        the number of seconds to wait between rounds (default 5)
-# num_rounds:       the number of rounds to run the algorithm (default 5)
-# distance_weight:  the weight to apply to fitness using distance (default 0.5)
-# time_weight:      the weight to apply to fitness using time (default 0.5)
-# address:          the server's address (default ("localhost", 6000))
-# pipe:             a Connection object to send the best solution to main
+# problem:         - a pandas dataframe containing the problem data
+# num_clients:     - the number of clients (stakeholders) to work on the problem
+# wait_time:       - the number of seconds to wait between rounds (default 5)
+# num_rounds:      - the number of rounds to run the algorithm (default 5)
+# pipe:            - a Connection object to send the best solution to main
+# distance_weight: - the weight to apply to fitness using distance (default 0.5)
+# time_weight:     - the weight to apply to fitness using time (default 0.5)
+# address:         - the server's address (default ("localhost", 6000))
+# num_top_solutions- the number of top solutions to keep track of (default 3)
+# log_dir:         - the directory to save the log files (default None)
 from datetime import datetime
 from multiprocessing import Process
 from multiprocessing.connection import Listener

@@ -1,2 +1,2 @@
 filename,client_config,wait_time,num_rounds,pop_multiplier,num_top_solutions
-tsp100.csv,selfish.csv,30,60,1,5
+tsp100.csv,selfless.csv,30,60,1,5

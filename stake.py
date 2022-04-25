@@ -4,11 +4,15 @@
 # COMP 5690                 Senior Computer Science Project
 # Mount Royal University    Winter 2022
 #
-#   ARGUMENTS
-# server_config:    The configuration for the server, as found in the 
-#                   server_configs folder, not including the file extension.
+# The main program for the stakeholder search approach to the traveling salesman
+# problem. The argument for this program is the name of the server configuration
+# file found in the /server_configs subdirectory, ignoring the .csv extension.
+# Therefore, running:
+#   python stake.py 100
+# will run the program with to solve a TSP of size 100.
 #
-# num_repeats:      The number of times to run the search.
+# If a configuration file is not found, then the program will default to a
+# problem of size 20.
 from multiprocessing.connection import Pipe
 from datetime import datetime as dt
 from multiprocessing import Process

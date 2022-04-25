@@ -4,26 +4,49 @@
 # COMP 5690                 Senior Computer Science Project
 # Mount Royal University    Winter 2022
 #
-#       create_client()
-# Returns a TSPGA object, which is a subclass of Process. Upon running the
-# process, it will attempt to connect to the server at the specified address,
-# and participate in a number of rounds as a stakeholder.
+# This program holds the client code for the stakeholder search approach to the
+# traveling salesman problem. It receives information from the server and runs
+# a GA, which can be interrupted.
 #
-#   OPTIONAL PARAMETERS
+#       load(filename, pop_multiplier, log_dir)
+# Returns a list of Process objects, each of which runs tsp_client.
+#
+# PARAMETERS
+# filename:           - name of the config file (default "default.csv")
+# pop_multiplier:     - how many times to duplicate each config (default 1)
+# log_dir:            - directory to save the log files (default None)
+#
+#
+#       tsp_client(name, distance_weight, time_weight, use_other_solution, 
+#                   share_chair_weights, address, log_path)
+# This function is the main function which should be set as the target when
+# creating a new process. It's responsible for communicating with the server.
+#
+# PARAMETERS
 # name:               - name of the client as printed by the server, otherwise 
 #                       a generated one is used
 # distance_weight:    - weight of distance in the fitness function (default 0.5)
 # time_weight:        - weight of time in the fitness function (default 0.5)
 # use_other_solution: - whether to include the solutions shared by the chair in 
 #                       the next round of search (default True)
+# share_chair_weights:- whether to share the solution best for the chair
 # address:            - the address of the server (default ('localhost', 6000))
+# log_path:           - the path to the log file (default None)
 #
-#       load()
-# Returns a list of TSPGA objects, as determined by the given config file.
 #
-#   OPTIONAL PARAMETERS
-# filename:           - name of the config file (default "default.csv")
-# pop_multiplier:     - how many times to duplicate each config (default 1)
+#       tsp_worker(complete, stop_ga, conn_worker, use_other_solution, 
+#                   log_path, share_chair_weights)
+# THIS FUNCTION SHOULD NOT BE CALLED ON ITS OWN, but is rather run in a thread
+# created by tsp_client. It is responsible for the GA.
+#
+# PARAMETERS
+# complete:           - an event which is set when the server is done
+# stop_ga:            - an event which is set when the GA should stop
+# conn_worker:        - a pipe to communicate with the tsp_client
+# use_other_solution: - whether to include the solutions shared by the chair in 
+#                       the next round of search (default True)
+# log_path:           - the path to the log file (default None)
+# share_chair_weights - whether to share the solution best for the chai
 from multiprocessing.connection import Client, Pipe
 from multiprocessing import Process
 from operator import truediv
@@ -36,6 +59,45 @@ import time
 import tsp
 import log
 import os
+
+def load(   filename = None, 
+            pop_multiplier = 1,
+            log_dir = None):
+    if filename is None:
+        filename = "default.csv"
+
+    path = os.path.join("client_configs", filename)
+    config = pandas.read_csv(path)
+
+    client_list = []
+
+    for i in range(0,len(config)):      # for each config
+        for j in range(0, pop_multiplier):  # how many duplicates
+            name = config.at[i, "name"]
+            if pop_multiplier > 1:
+               name += "-" + str(j)
+
+            log_path = None
+            if log_dir is not None:
+                try:
+                    log_path = os.path.join(log_dir, name + ".txt")
+                except:
+                    log_path = None
+
+            client_list.append(
+                Process(target=tsp_client, kwargs={
+                    "name": name,
+                    "distance_weight": config.at[i, "distance"],
+                    "time_weight": config.at[i, "time"],
+                    "use_other_solution": config.at[i, "use_other_solution"],
+                    "share_chair_weights": config.at[i, "share_chair_weights"],
+                    "log_path": log_path
+                    },
+                    daemon=True
+                )
+            )
+
+    return client_list
 
 def tsp_client( name = "Client",
                 distance_weight = 0.5, 
@@ -117,6 +179,7 @@ def tsp_worker(complete, stop_ga, conn_worker,
                 use_other_solution = True, 
                 log_path = None, 
                 share_chair_weights = False):
+
     population = distance_table = time_table = chair_weights = None
     problem = None
     count = 1
@@ -178,42 +241,3 @@ def tsp_worker(complete, stop_ga, conn_worker,
             count += 1
 
         #conn_worker.close()
-
-def load(   filename = None, 
-            pop_multiplier = 1,
-            log_dir = None):
-    if filename is None:
-        filename = "default.csv"
-
-    path = os.path.join("client_configs", filename)
-    config = pandas.read_csv(path)
-
-    client_list = []
-
-    for i in range(0,len(config)):      # for each config
-        for j in range(0, pop_multiplier):  # how many duplicates
-            name = config.at[i, "name"]
-            if pop_multiplier > 1:
-               name += "-" + str(j)
-
-            log_path = None
-            if log_dir is not None:
-                try:
-                    log_path = os.path.join(log_dir, name + ".txt")
-                except:
-                    log_path = None
-
-            client_list.append(
-                Process(target=tsp_client, kwargs={
-                    "name": name,
-                    "distance_weight": config.at[i, "distance"],
-                    "time_weight": config.at[i, "time"],
-                    "use_other_solution": config.at[i, "use_other_solution"],
-                    "share_chair_weights": config.at[i, "share_chair_weights"],
-                    "log_path": log_path
-                    },
-                    daemon=True
-                )
-            )
-
-    return client_list
